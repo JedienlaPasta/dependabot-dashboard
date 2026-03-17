@@ -132,19 +132,23 @@ export default function DashboardClient({
             No se encontraron alertas para los filtros seleccionados.
           </div>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/30 shadow-xl">
-            <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-900/30 shadow-xl">
+            <table className="w-[1280px] text-left border-collapse">
               <thead>
                 <tr className="bg-zinc-900/80 border-b border-zinc-800 text-xs text-zinc-500 uppercase tracking-wider grid grid-cols-24">
-                  <th className="p-5 col-span-4 font-semibold">
+                  <th className="p-5 col-span-10 font-semibold">
                     Alerta / Repositorio
                   </th>
-                  <th className="p-5 col-span-4 font-semibold w-28">Estado</th>
-                  <th className="p-5 col-span-4 font-semibold w-28">
+                  <th className="p-5 col-span-3 font-semibold min-w-28 text-center">
+                    Estado
+                  </th>
+                  <th className="p-5 col-span-3 font-semibold min-w-28 text-center">
                     Severidad
                   </th>
-                  <th className="p-5 col-span-4 font-semibold w-56">Creada</th>
-                  <th className="p-5 col-span-4 font-semibold w-56">
+                  <th className="p-5 col-span-4 font-semibold min-w-52">
+                    Creada
+                  </th>
+                  <th className="p-5 col-span-4 font-semibold min-w-52">
                     Arreglada
                   </th>
                 </tr>
@@ -174,24 +178,24 @@ export default function DashboardClient({
                         {alert.security_advisory.summary}
                       </div>
                     </td>
-                    <td className="p-5 col-span-3 flex items-center justify-center">
+                    <td className="p-5 col-span-3 min-w-28 flex items-center justify-center">
                       <span
                         className={`px-2.5 py-1 rounded-full text-xs font-medium border capitalize ${getStateColor(alert.state)}`}
                       >
                         {alert.state}
                       </span>
                     </td>
-                    <td className="p-5 col-span-3 flex items-center justify-center">
+                    <td className="p-5 col-span-3 min-w-28 flex items-center justify-center">
                       <span
                         className={`px-2.5 py-1 rounded text-xs font-bold uppercase border ${getSeverityColor(alert.security_vulnerability.severity)}`}
                       >
                         {alert.security_vulnerability.severity}
                       </span>
                     </td>
-                    <td className="p-5 col-span-4 text-sm text-zinc-400 whitespace-nowrap flex items-center justify-center">
+                    <td className="p-5 col-span-4 min-w-52 text-sm text-zinc-400 whitespace-nowrap flex items-center justify-center">
                       {formatDate(alert.created_at)}
                     </td>
-                    <td className="p-5 col-span-4 text-sm text-zinc-400 whitespace-nowrap flex items-center justify-center">
+                    <td className="p-5 col-span-4 min-w-52 text-sm text-zinc-400 whitespace-nowrap flex items-center justify-center">
                       {alert.fixed_at ||
                       alert.dismissed_at ||
                       alert.state === "auto_dismissed" ? (
