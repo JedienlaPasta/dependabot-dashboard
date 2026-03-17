@@ -1,5 +1,7 @@
 import DashboardClient from "./ui/DashboardClient";
 
+export const dynamic = "force-dynamic";
+
 const OWNER = "JedienlaPasta";
 const REPOS = [
   "sensor",
