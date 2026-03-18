@@ -2,6 +2,8 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Dropdown from "./Dropdown";
+import { Copy } from "lucide-react";
+import CopyToClipboardButton from "./CopyToClipboardButton";
 
 const STATE_OPTIONS = [
   { value: "open", label: "Abiertas" },
@@ -133,7 +135,7 @@ export default function DashboardClient({
           </div>
         ) : (
           <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-900/30 shadow-xl">
-            <table className="w-[1280px] text-left border-collapse">
+            <table className="w-[1278px] text-left border-collapse">
               <thead>
                 <tr className="bg-zinc-900/80 border-b border-zinc-800 text-xs text-zinc-500 uppercase tracking-wider grid grid-cols-24">
                   <th className="p-5 col-span-10 font-semibold">
@@ -278,9 +280,12 @@ export default function DashboardClient({
                     </p>
                   </div>
                   <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 md:col-span-2">
-                    <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
+                    <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1 relative">
+                      <CopyToClipboardButton
+                        text={String(selectedAlert.security_advisory.ghsa_id)}
+                      />
                       GHSA ID
-                    </p>
+                    </div>
                     <p className="font-mono text-sm">
                       {selectedAlert.security_advisory.ghsa_id}
                     </p>
