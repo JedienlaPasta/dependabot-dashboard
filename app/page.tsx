@@ -9,6 +9,7 @@ const REPOS = [
   "dom-consultas-legacy-client",
   "accion-mascota",
   "docs-algarrobo",
+  "dependabot-dashboard",
 ];
 
 async function getAlerts() {
