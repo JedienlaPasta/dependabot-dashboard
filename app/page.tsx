@@ -25,7 +25,7 @@ async function getAlerts() {
           Accept: "application/vnd.github+json",
           "X-GitHub-Api-Version": "2022-11-28",
         },
-        next: { revalidate: 300 },
+        cache: "no-store",
       },
     );
 
@@ -50,6 +50,13 @@ async function getAlerts() {
 
 export default async function Dashboard() {
   const alerts = await getAlerts();
+  const lastUpdated = new Date().toISOString();
 
-  return <DashboardClient initialAlerts={alerts} repos={REPOS} />;
+  return (
+    <DashboardClient
+      initialAlerts={alerts}
+      repos={REPOS}
+      lastUpdated={lastUpdated}
+    />
+  );
 }

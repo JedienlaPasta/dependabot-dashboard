@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import Dropdown from "./Dropdown";
-import { Copy } from "lucide-react";
 import CopyToClipboardButton from "./CopyToClipboardButton";
+import { RefreshCcw, RefreshCw } from "lucide-react";
 
 const STATE_OPTIONS = [
   { value: "open", label: "Abiertas" },
@@ -22,10 +23,15 @@ const formatDate = (dateString: string | null): string => {
 export default function DashboardClient({
   initialAlerts,
   repos,
+  lastUpdated,
 }: {
   initialAlerts: any[];
   repos: string[];
+  lastUpdated: string;
 }) {
+  const router = useRouter();
+  const [isRefreshing, startRefreshing] = useTransition();
+
   const [repoFilter, setRepoFilter] = useState("Todos");
   const [stateFilter, setStateFilter] = useState("open");
   const [selectedAlert, setSelectedAlert] = useState<any | null>(null);
@@ -110,22 +116,42 @@ export default function DashboardClient({
               Monitoreando {repos.length} repositorios • {filteredAlerts.length}{" "}
               alertas mostradas
             </p>
+            <p className="text-zinc-500 mt-1 text-xs">
+              Última actualización: {formatDate(lastUpdated)}
+            </p>
           </div>
 
-          <div className="flex gap-4">
-            <Dropdown
-              label="Estado"
-              value={stateFilter}
-              onChange={setStateFilter}
-              options={STATE_OPTIONS}
-            />
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
+            <button
+              type="button"
+              title={isRefreshing ? "Actualizando..." : "Actualizar"}
+              onClick={() => startRefreshing(() => router.refresh())}
+              disabled={isRefreshing}
+              className={`h-11 rounded-xl border border-zinc-700 bg-zinc-900 px-4 text-sm text-zinc-200 transition-colors hover:bg-zinc-800 hover:text-white cursor-pointer ${
+                isRefreshing ? "opacity-60 cursor-not-allowed" : ""
+              }`}
+            >
+              {/* {isRefreshing ? "Actualizando..." : "Actualizar"} */}
+              <RefreshCw
+                className={`size-4 ${isRefreshing ? "animate-spin text-zinc-400" : ""}`}
+              />
+            </button>
 
-            <Dropdown
-              label="Repositorio"
-              value={repoFilter}
-              onChange={setRepoFilter}
-              options={REPO_OPTIONS}
-            />
+            <div className="flex gap-4">
+              <Dropdown
+                label="Estado"
+                value={stateFilter}
+                onChange={setStateFilter}
+                options={STATE_OPTIONS}
+              />
+
+              <Dropdown
+                label="Repositorio"
+                value={repoFilter}
+                onChange={setRepoFilter}
+                options={REPO_OPTIONS}
+              />
+            </div>
           </div>
         </header>
 
