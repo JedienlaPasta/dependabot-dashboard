@@ -36,10 +36,13 @@ export default function DashboardClient({
   const [stateFilter, setStateFilter] = useState("open");
   const [selectedAlert, setSelectedAlert] = useState<any | null>(null);
 
-  const REPO_OPTIONS = repos.map((repo) => ({
-    value: repo,
-    label: repo,
-  }));
+  const REPO_OPTIONS = [
+    { value: "Todos", label: "Todos" },
+    ...repos.map((repo) => ({
+      value: repo,
+      label: repo,
+    })),
+  ];
 
   useEffect(() => {
     if (selectedAlert) {
