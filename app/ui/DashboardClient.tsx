@@ -176,10 +176,10 @@ export default function DashboardClient({
                   <th className="p-5 col-span-3 font-semibold min-w-28 text-center">
                     Severidad
                   </th>
-                  <th className="p-5 col-span-4 font-semibold min-w-52">
+                  <th className="p-5 flex justify-center items-center col-span-4 font-semibold min-w-52">
                     Creada
                   </th>
-                  <th className="p-5 col-span-4 font-semibold min-w-52">
+                  <th className="p-5 flex justify-center items-center col-span-4 font-semibold min-w-52">
                     Arreglada
                   </th>
                 </tr>
