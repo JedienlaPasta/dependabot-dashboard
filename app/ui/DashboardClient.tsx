@@ -2,9 +2,13 @@
 
 import { useState, useMemo, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import Dropdown from "./Dropdown";
 import CopyToClipboardButton from "./CopyToClipboardButton";
-import { RefreshCcw, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const STATE_OPTIONS = [
   { value: "open", label: "Abiertas" },
@@ -19,6 +23,109 @@ const formatDate = (dateString: string | null): string => {
     timeStyle: "short",
   });
 };
+
+const MARKDOWN_COMPONENTS = {
+  h1: (props: any) => (
+    <h1 className="mt-0 mb-4 text-xl font-bold text-zinc-100" {...props} />
+  ),
+  h2: (props: any) => (
+    <h2 className="mt-6 mb-3 text-lg font-bold text-zinc-100" {...props} />
+  ),
+  h3: (props: any) => (
+    <h3
+      className="mt-5 mb-2 text-base font-semibold text-zinc-100"
+      {...props}
+    />
+  ),
+  p: (props: any) => (
+    <p className="my-3 leading-relaxed text-zinc-200" {...props} />
+  ),
+  a: ({ className, children, ...props }: any) => {
+    const childText =
+      typeof children === "string"
+        ? children
+        : Array.isArray(children) &&
+            children.length === 1 &&
+            typeof children[0] === "string"
+          ? children[0]
+          : null;
+
+    const looksLikeCodeToken =
+      childText !== null &&
+      (/^--[\w-]+$/.test(childText) || /[\w-]+\.[\w-]+/.test(childText));
+
+    return (
+      <a
+        className={
+          looksLikeCodeToken
+            ? `rounded bg-zinc-900/60 px-1.5 py-0.5 font-mono text-[0.85em] text-blue-200 hover:text-indigo-100 ${
+                className || ""
+              }`
+            : `text-blue-500 underline underline-offset-2 hover:text-indigo-200 ${
+                className || ""
+              }`
+        }
+        target="_blank"
+        rel="noreferrer"
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  },
+  ul: (props: any) => <ul className="my-3 list-disc pl-6" {...props} />,
+  ol: (props: any) => <ol className="my-3 list-decimal pl-6" {...props} />,
+  li: (props: any) => <li className="my-1 text-zinc-200" {...props} />,
+  hr: (props: any) => <hr className="my-6 border-zinc-800" {...props} />,
+  blockquote: (props: any) => (
+    <blockquote
+      className="my-4 border-l-2 border-zinc-700 pl-4 text-zinc-300"
+      {...props}
+    />
+  ),
+  pre: ({ className, ...props }: any) => (
+    <pre
+      className={`my-4 overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 text-xs text-zinc-100 ${
+        className || ""
+      }`}
+      {...props}
+    />
+  ),
+  code: ({ inline, className, children, ...props }: any) => {
+    const match = /language-([\w-]+)/.exec(className || "");
+
+    if (!inline && match) {
+      return (
+        <SyntaxHighlighter style={oneDark} language={match[1]} PreTag="div">
+          {String(children).replace(/\n$/, "")}
+        </SyntaxHighlighter>
+      );
+    }
+
+    return (
+      <code
+        className={`rounded bg-slate-800/60 px-1.5 py-0.5 font-mono text-[0.85em] ${
+          className || ""
+        }`}
+        {...props}
+      >
+        {children}
+      </code>
+    );
+  },
+  img: ({ className, ...props }: any) => (
+    <img
+      className={`my-4 max-w-full rounded-xl border border-zinc-800 ${
+        className || ""
+      }`}
+      {...props}
+    />
+  ),
+} as any;
+
+function normalizeMarkdown(md: string) {
+  return md.replace(/<img[^>]*src="([^"]+)"[^>]*>/g, "![]($1)");
+}
 
 export default function DashboardClient({
   initialAlerts,
@@ -134,7 +241,6 @@ export default function DashboardClient({
                 isRefreshing ? "opacity-60 cursor-not-allowed" : ""
               }`}
             >
-              {/* {isRefreshing ? "Actualizando..." : "Actualizar"} */}
               <RefreshCw
                 className={`size-4 ${isRefreshing ? "animate-spin text-zinc-400" : ""}`}
               />
@@ -293,23 +399,31 @@ export default function DashboardClient({
                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
                   {/* Nombre del Paquete y GHSA ID */}
                   <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 col-span-2 md:col-span-2">
-                    <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
-                      Nombre del Paquete
+                    <p className="text-xs text-zinc-500 uppercase tracking-wider mb-0.5">
+                      Paquete
                     </p>
-                    <p className="font-mono text-sm font-semibold text-zinc-100">
+                    <div className="font-mono text-sm font-semibold text-zinc-100 flex items-baseline gap-1">
                       {selectedAlert.security_vulnerability.package.name}
+                      <p className="text-xs text-zinc-600">
+                        (
+                        {selectedAlert.security_vulnerability.package.ecosystem}
+                        )
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 md:col-span-2">
+                    <p className="text-xs text-zinc-500 uppercase tracking-wider mb-0.5">
+                      Versiones Afectadas
+                    </p>
+                    <p className="font-mono text-sm uppercase text-indigo-300">
+                      {
+                        selectedAlert.security_vulnerability
+                          .vulnerable_version_range
+                      }
                     </p>
                   </div>
                   <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 md:col-span-2">
-                    <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
-                      Ecosistema
-                    </p>
-                    <p className="font-mono text-sm uppercase text-indigo-300 font-bold">
-                      {selectedAlert.security_vulnerability.package.ecosystem}
-                    </p>
-                  </div>
-                  <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 md:col-span-2">
-                    <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1 relative">
+                    <div className="text-xs text-zinc-500 uppercase tracking-wider mb-0.5 relative">
                       <CopyToClipboardButton
                         text={String(selectedAlert.security_advisory.ghsa_id)}
                       />
@@ -322,7 +436,7 @@ export default function DashboardClient({
 
                   {/* Filas de Fechas Detallada */}
                   <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 col-span-2 md:col-span-3">
-                    <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
+                    <p className="text-xs text-zinc-500 uppercase tracking-wider mb-0.5">
                       Creada
                     </p>
                     <p className="font-mono text-sm text-red-300">
@@ -330,7 +444,7 @@ export default function DashboardClient({
                     </p>
                   </div>
                   <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 col-span-2 md:col-span-3">
-                    <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
+                    <p className="text-xs text-zinc-500 uppercase tracking-wider mb-0.5">
                       Arreglada
                     </p>
                     {selectedAlert.fixed_at ? (
@@ -358,10 +472,15 @@ export default function DashboardClient({
                   <h3 className="text-sm text-zinc-500 uppercase tracking-wider mb-3 font-semibold border-b border-zinc-800 pb-2">
                     Descripción Detallada
                   </h3>
-                  <div className="bg-zinc-950 p-5 rounded-xl border border-zinc-800 prose prose-invert prose-sm max-w-none text-zinc-300 custom-scrollbar">
-                    <pre className="whitespace-pre-wrap font-sans text-sm">
-                      {selectedAlert.security_advisory.description}
-                    </pre>
+                  <div className="bg-zinc-950 p-5 rounded-xl border border-zinc-800 text-zinc-300 custom-scrollbar">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={MARKDOWN_COMPONENTS}
+                    >
+                      {normalizeMarkdown(
+                        selectedAlert.security_advisory.description,
+                      )}
+                    </ReactMarkdown>
                   </div>
                 </div>
               </div>
