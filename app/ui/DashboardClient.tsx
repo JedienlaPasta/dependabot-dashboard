@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Dropdown from "./Dropdown";
 import CopyToClipboardButton from "./CopyToClipboardButton";
@@ -24,23 +25,23 @@ const formatDate = (dateString: string | null): string => {
   });
 };
 
-const MARKDOWN_COMPONENTS = {
-  h1: (props: any) => (
+const MARKDOWN_COMPONENTS: Components = {
+  h1: ({ node, ...props }) => (
     <h1 className="mt-0 mb-4 text-xl font-bold text-zinc-100" {...props} />
   ),
-  h2: (props: any) => (
+  h2: ({ node, ...props }) => (
     <h2 className="mt-6 mb-3 text-lg font-bold text-zinc-100" {...props} />
   ),
-  h3: (props: any) => (
+  h3: ({ node, ...props }) => (
     <h3
       className="mt-5 mb-2 text-base font-semibold text-zinc-100"
       {...props}
     />
   ),
-  p: (props: any) => (
+  p: ({ node, ...props }) => (
     <p className="my-3 leading-relaxed text-zinc-200" {...props} />
   ),
-  a: ({ className, children, ...props }: any) => {
+  a: ({ node, className, children, ...props }) => {
     const childText =
       typeof children === "string"
         ? children
@@ -58,10 +59,10 @@ const MARKDOWN_COMPONENTS = {
       <a
         className={
           looksLikeCodeToken
-            ? `rounded bg-zinc-900/60 px-1.5 py-0.5 font-mono text-[0.85em] text-blue-200 hover:text-indigo-100 ${
+            ? `rounded bg-zinc-900/60 px-1.5 py-0.5 font-mono text-[0.85em] text-blue-200 hover:text-blue-100 ${
                 className || ""
               }`
-            : `text-blue-500 underline underline-offset-2 hover:text-indigo-200 ${
+            : `text-blue-500 underline underline-offset-2 hover:text-blue-600 ${
                 className || ""
               }`
         }
@@ -73,17 +74,21 @@ const MARKDOWN_COMPONENTS = {
       </a>
     );
   },
-  ul: (props: any) => <ul className="my-3 list-disc pl-6" {...props} />,
-  ol: (props: any) => <ol className="my-3 list-decimal pl-6" {...props} />,
-  li: (props: any) => <li className="my-1 text-zinc-200" {...props} />,
-  hr: (props: any) => <hr className="my-6 border-zinc-800" {...props} />,
-  blockquote: (props: any) => (
+  ul: ({ node, ...props }) => <ul className="my-3 list-disc pl-6" {...props} />,
+  ol: ({ node, ...props }) => (
+    <ol className="my-3 list-decimal pl-6" {...props} />
+  ),
+  li: ({ node, ...props }) => <li className="my-1 text-zinc-200" {...props} />,
+  hr: ({ node, ...props }) => (
+    <hr className="my-6 border-zinc-800" {...props} />
+  ),
+  blockquote: ({ node, ...props }) => (
     <blockquote
       className="my-4 border-l-2 border-zinc-700 pl-4 text-zinc-300"
       {...props}
     />
   ),
-  pre: ({ className, ...props }: any) => (
+  pre: ({ node, className, ...props }) => (
     <pre
       className={`my-4 overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 text-xs text-zinc-100 ${
         className || ""
@@ -91,10 +96,10 @@ const MARKDOWN_COMPONENTS = {
       {...props}
     />
   ),
-  code: ({ inline, className, children, ...props }: any) => {
+  code: ({ node, className, children, ...props }) => {
     const match = /language-([\w-]+)/.exec(className || "");
 
-    if (!inline && match) {
+    if (match) {
       return (
         <SyntaxHighlighter style={oneDark} language={match[1]} PreTag="div">
           {String(children).replace(/\n$/, "")}
@@ -113,7 +118,7 @@ const MARKDOWN_COMPONENTS = {
       </code>
     );
   },
-  img: ({ className, ...props }: any) => (
+  img: ({ node, className, ...props }) => (
     <img
       className={`my-4 max-w-full rounded-xl border border-zinc-800 ${
         className || ""
@@ -121,7 +126,7 @@ const MARKDOWN_COMPONENTS = {
       {...props}
     />
   ),
-} as any;
+};
 
 function normalizeMarkdown(md: string) {
   return md.replace(/<img[^>]*src="([^"]+)"[^>]*>/g, "![]($1)");
