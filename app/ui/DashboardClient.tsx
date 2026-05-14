@@ -10,20 +10,13 @@ import CopyToClipboardButton from "./CopyToClipboardButton";
 import { RefreshCw } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { formatDate } from "../utils/format";
 
 const STATE_OPTIONS = [
   { value: "open", label: "Abiertas" },
   { value: "closed", label: "Cerradas (Fixed/Dismissed)" },
-  { value: "Todos", label: "Todas" },
+  { value: "all", label: "Todas" },
 ];
-
-const formatDate = (dateString: string | null): string => {
-  if (!dateString) return "N/A";
-  return new Date(dateString).toLocaleString("es-ES", {
-    dateStyle: "long",
-    timeStyle: "short",
-  });
-};
 
 const MARKDOWN_COMPONENTS: Components = {
   h1: ({ node, ...props }) => (
@@ -176,7 +169,7 @@ export default function DashboardClient({
       const matchRepo =
         repoFilter === "Todos" || alert.repository === repoFilter;
       const matchState =
-        stateFilter === "Todos" ||
+        stateFilter === "all" ||
         alert.state === stateFilter ||
         (stateFilter === "closed" &&
           (alert.state === "fixed" || alert.state === "dismissed"));
@@ -231,7 +224,7 @@ export default function DashboardClient({
               Monitoreando {repos.length} repositorios • {filteredAlerts.length}{" "}
               alertas mostradas
             </p>
-            <p className="text-zinc-500 mt-1 text-xs">
+            <p className="text-zinc-500 mt-1 text-xs tabular-nums">
               Última actualización: {formatDate(lastUpdated)}
             </p>
           </div>
@@ -334,10 +327,10 @@ export default function DashboardClient({
                         {alert.security_vulnerability.severity}
                       </span>
                     </td>
-                    <td className="p-5 col-span-4 min-w-52 text-sm text-zinc-400 whitespace-nowrap flex items-center justify-center">
+                    <td className="p-5 col-span-4 min-w-52 text-sm text-zinc-400 whitespace-nowrap flex items-center justify-center tabular-nums">
                       {formatDate(alert.created_at)}
                     </td>
-                    <td className="p-5 col-span-4 min-w-52 text-sm text-zinc-400 whitespace-nowrap flex items-center justify-center">
+                    <td className="p-5 col-span-4 min-w-52 text-sm text-zinc-400 whitespace-nowrap flex items-center justify-center tabular-nums">
                       {alert.fixed_at ||
                       alert.dismissed_at ||
                       alert.state === "auto_dismissed" ? (
@@ -444,7 +437,7 @@ export default function DashboardClient({
                     <p className="text-xs text-zinc-500 uppercase tracking-wider mb-0.5">
                       Creada
                     </p>
-                    <p className="font-mono text-sm text-red-300">
+                    <p className="font-mono text-sm text-red-300 tabular-nums">
                       {formatDate(selectedAlert.created_at)}
                     </p>
                   </div>
@@ -453,7 +446,7 @@ export default function DashboardClient({
                       Arreglada
                     </p>
                     {selectedAlert.fixed_at ? (
-                      <p className="font-mono text-sm text-green-300">
+                      <p className="font-mono text-sm text-green-300 tabular-nums">
                         {formatDate(selectedAlert.fixed_at)}
                       </p>
                     ) : (
