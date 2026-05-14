@@ -284,7 +284,7 @@ export default function DashboardClient({
                     Creada
                   </th>
                   <th className="p-5 flex justify-center items-center col-span-4 font-semibold min-w-52">
-                    Arreglada
+                    Cerrada
                   </th>
                 </tr>
               </thead>
@@ -443,7 +443,7 @@ export default function DashboardClient({
                   </div>
                   <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 col-span-2 md:col-span-3">
                     <p className="text-xs text-zinc-500 uppercase tracking-wider mb-0.5">
-                      Arreglada
+                      Cerrada
                     </p>
                     {selectedAlert.fixed_at ? (
                       <p className="font-mono text-sm text-green-300 tabular-nums">
